@@ -1,0 +1,98 @@
+################################################################################
+#                           UNIT TEST CONFIGURATION                            #
+################################################################################
+:test:
+  :name: 'test'
+  :output_path: 'build/test'
+  :comp_path: '/usr/bin'
+  :comp_args:
+    - '-g3'
+    - '-Og'
+    - '-Wall'
+    - '-fpic'
+    - '-m32'
+    - '-fshort-enums'
+  :defines:
+    :prefix: '-D'
+    :items:
+      - 'GREATEST_USE_ABBREVS'
+  :includes:
+    :prefix: '-I'
+    :items:
+      - 'src/'
+      - 'test/'
+  :src_files:
+      - 'src/queue.c'
+      - 'test/main.c'
+
+:decimal_to_binary:
+  :name: 'decimal_to_binary'
+  :output_path: 'build/decimal_to_binary'
+  :comp_path: '/usr/bin'
+  :comp_args:
+    - '-g'
+    - '-O2'
+    - '-Wall'
+    - '-fpic'
+    - '-m32'
+    - '-fshort-enums'
+  :defines:
+    :prefix: '-D'
+    :items:
+      - 'GREATEST_USE_ABBREVS'
+  :includes:
+    :prefix: '-I'
+    :items:
+      - 'examples/decimal_to_binary/src/'
+      - 'src/'
+  :src_files:
+      - 'examples/decimal_to_binary/src/main.c'
+      - 'src/queue.c'
+
+:reverse_a_file:
+  :name: 'reverse_a_file'
+  :output_path: 'build/reverse_a_file'
+  :comp_path: '/usr/bin'
+  :comp_args:
+    - '-g'
+    - '-O2'
+    - '-Wall'
+    - '-fpic'
+    - '-m32'
+    - '-fshort-enums'
+  :defines:
+    :prefix: '-D'
+    :items:
+      - 'GREATEST_USE_ABBREVS'
+  :includes:
+    :prefix: '-I'
+    :items:
+      - 'examples/reverse_a_file/src/'
+      - 'src/'
+  :src_files:
+      - 'examples/reverse_a_file/src/main.c'
+      - 'src/queue.c'
+
+:parenthesis_checker:
+  :name: 'parenthesis_checker'
+  :output_path: 'build/parenthesis_checker'
+  :comp_path: '/usr/bin'
+  :comp_args:
+    - '-g'
+    - '-O2'
+    - '-Wall'
+    - '-fpic'
+    - '-m32'
+    - '-fshort-enums'
+  :defines:
+    :prefix: '-D'
+    :items:
+      - 'GREATEST_USE_ABBREVS'
+  :includes:
+    :prefix: '-I'
+    :items:
+      - 'examples/parenthesis_checker/src/'
+      - 'src/'
+  :src_files:
+      - 'examples/parenthesis_checker/src/main.c'
+      - 'src/queue.c'
