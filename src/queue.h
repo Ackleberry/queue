@@ -21,16 +21,74 @@
  *                 F U N C T I O N    D E C L A R A T I O N S                 *
  *============================================================================*/
 
+/*******************************************************************************
+ * @brief  Initializes the queue object
+ *
+ * @details  The caller is responsible for allocating the queue object, and
+ *           queue buffer.
+ *
+ * @param pObj      Pointer to the queue object
+ * @param pBuf      Pointer to the queue buffer
+ * @param bufSize   Size of the buffer, must be an integer multiple of datasize
+ * @param dataSize  Size of the data type that the queue is handling
+ *
+ * @return none
+ ******************************************************************************/
 void Queue_Init(Queue_t *pObj, void *pBuf, size_t bufSize, size_t dataSize);
 
+/*******************************************************************************
+ * @brief  Check if the queue is empty
+ *
+ * @details  Queue top is considered empty when set to largest `size_t` value,
+ *           SIZE_MAX. The first added element "rolls" the top over from
+ *           SIZE_MAX to 0.
+ *
+ * @param pObj  Pointer to the queue object
+ *
+ * @returns true if empty
+ ******************************************************************************/
 bool Queue_IsEmpty(Queue_t *pObj);
 
+/*******************************************************************************
+ * @brief Check if the queue is full
+ *
+ * @details  Queue top is considered full when set to one less than the buffer
+ *           size.
+ *
+ * @param pObj  Pointer to the queue object
+ *
+ * @returns true if full
+ ******************************************************************************/
 bool Queue_IsFull(Queue_t *pObj);
 
+/*******************************************************************************
+ * @brief  Pushes some data type onto the queue
+ *
+ * @param pObj     Pointer to the queue object
+ * @param pDataIn  Pointer to the data that will be pushed onto the queue
+ *
+ * @returns Queue error flag
+ ******************************************************************************/
 Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataIn);
 
+/*******************************************************************************
+ * @brief  Pops some data type off the queue
+ *
+ * @param pObj      Pointer to the queue object
+ * @param pDataOut  Pointer to the data that will be popped off the queue
+ *
+ * @returns Queue error flag
+ ******************************************************************************/
 Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOut);
 
+/*******************************************************************************
+ * @brief  Peek at the data on the top of the queue
+ *
+ * @param  pObj      Pointer to the queue object
+ * @param  pDataOut  Pointer to the peeked data
+ *
+ * @returns Queue error flag
+ ******************************************************************************/
 Queue_Error_e Queue_Peek(Queue_t *pObj, void *pDataOut);
 
 #endif /* QUEUE_H_INCLUDED */
