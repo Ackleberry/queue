@@ -22,6 +22,9 @@
  *                           E N U M E R A T I O N S                          *
  *============================================================================*/
 
+/**
+ * @brief Error flag
+**/
 typedef enum _Queue_Error_e
 {
     Queue_Error_None = 0,
@@ -32,6 +35,11 @@ typedef enum _Queue_Error_e
  *                             S T R U C T U R E S                            *
  *============================================================================*/
 
+/**
+ * @brief  Queue Object
+ *
+ * @note   This object should never be directly manipulated by the caller.
+**/
 typedef struct _Queue_t
 {
     size_t   front;    /*!< Buffer index to the front of the queue */
