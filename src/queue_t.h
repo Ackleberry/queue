@@ -42,8 +42,8 @@ typedef enum _Queue_Error_e
 **/
 typedef struct _Queue_t
 {
-    size_t   front;    /*!< Buffer index to the front of the queue */
-    size_t   rear;     /*!< Buffer index to the rear of the queue */
+    size_t   front;    /*!< Front (read) buffer cursor */
+    size_t   rear;     /*!< Rear (write) buffer cursor */
     uint8_t *pBuf;     /*!< Pointer to the queue buffer */
     size_t   bufSize;  /*!< Size of the queue buffer */
     size_t   dataSize; /*!< Size of the data type to be stored in the queue */
