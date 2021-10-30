@@ -48,7 +48,7 @@ Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataIn)
             break;
         }
 
-        if (pObj->front == SIZE_MAX)
+        if (Queue_IsEmpty(pObj))
         {
             pObj->front = pObj->rear;
         }
@@ -77,7 +77,7 @@ Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOut)
         pData[idx] = pObj->pBuf[pObj->front];
         pObj->front = (pObj->front + 1) % pObj->bufSize;
 
-        if (pObj->front == pObj->rear)
+        if (Queue_IsFull(pObj))
         {
             pObj->front = SIZE_MAX;
         }
