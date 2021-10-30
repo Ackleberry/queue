@@ -54,7 +54,13 @@ Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataIn)
         }
 
         pObj->pBuf[pObj->rear] = pData[idx];
-        pObj->rear = (pObj->rear + 1) % pObj->bufSize;
+
+        /* Advance cursor around buffer */
+        pObj->rear++;
+        if (pObj->rear >= pObj->bufSize)
+        {
+            pObj->rear = 0;
+        }
     }
 
     return err;
@@ -75,7 +81,13 @@ Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOut)
         }
 
         pData[idx] = pObj->pBuf[pObj->front];
-        pObj->front = (pObj->front + 1) % pObj->bufSize;
+
+        /* Advance cursor around buffer */
+        pObj->front++;
+        if (pObj->front >= pObj->bufSize)
+        {
+            pObj->front = 0;
+        }
 
         if (Queue_IsFull(pObj))
         {
