@@ -136,6 +136,7 @@ TEST Queue_can_pop_1_byte_data_types(void)
     /*****************    Assert     *****************/
     ASSERT_EQ(Queue_Error_None, err);
     ASSERT_EQ(dataIn, dataOut);
+    ASSERT_EQ(true, Queue_IsEmpty(&q));
 
     PASS();
 }
@@ -157,6 +158,7 @@ TEST Queue_can_pop_2_byte_data_types(void)
     /*****************    Assert     *****************/
     ASSERT_EQ(Queue_Error_None, err);
     ASSERT_EQ(dataIn, dataOut);
+    ASSERT_EQ(true, Queue_IsEmpty(&q));
 
     PASS();
 }
