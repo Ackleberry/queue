@@ -39,10 +39,6 @@ void Queue_Init(Queue_t *pObj, void *pBuf, size_t bufSize, size_t dataSize);
 /*******************************************************************************
  * @brief  Check if the queue is empty
  *
- * @details  Queue top is considered empty when set to largest `size_t` value,
- *           SIZE_MAX. The first added element "rolls" the top over from
- *           SIZE_MAX to 0.
- *
  * @param pObj  Pointer to the queue object
  *
  * @returns true if empty
@@ -51,9 +47,6 @@ bool Queue_IsEmpty(Queue_t *pObj);
 
 /*******************************************************************************
  * @brief Check if the queue is full
- *
- * @details  Queue top is considered full when set to one less than the buffer
- *           size.
  *
  * @param pObj  Pointer to the queue object
  *
