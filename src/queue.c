@@ -39,27 +39,29 @@ Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid)
     Queue_Error_e err = Queue_Error_None;
     uint8_t *pDataIn = (uint8_t *)pDataInVoid;
 
-    /* Push the data into the queue one byte at a time */
-    for (size_t byte = 0; byte < pObj->dataSize; byte++)
+    if (Queue_IsFull(pObj))
     {
-        if (Queue_IsFull(pObj))
-        {
-            err = Queue_Error;
-            break;
-        }
-
+        err = Queue_Error;
+    }
+    else
+    {
         if (Queue_IsEmpty(pObj))
         {
+            /* Unstash front cursor */
             pObj->front = pObj->rear;
         }
 
-        pObj->pBuf[pObj->rear] = pDataIn[byte];
-
-        /* Increment cursor around buffer */
-        pObj->rear++;
-        if (pObj->rear >= pObj->bufSize)
+        /* Push the data into the queue one byte at a time */
+        for (size_t byte = 0; byte < pObj->dataSize; byte++)
         {
-            pObj->rear = 0;
+            pObj->pBuf[pObj->rear] = pDataIn[byte];
+
+            /* Increment cursor around buffer */
+            pObj->rear++;
+            if (pObj->rear >= pObj->bufSize)
+            {
+                pObj->rear = 0;
+            }
         }
     }
 
@@ -71,26 +73,28 @@ Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid)
     Queue_Error_e err = Queue_Error_None;
     uint8_t *pDataOut = (uint8_t *)pDataOutVoid;
 
-    /* Pop the data off the queue one byte at a time */
-    for (size_t byte = 0; byte < pObj->dataSize; byte++)
+    if (Queue_IsEmpty(pObj))
     {
-        if (Queue_IsEmpty(pObj))
+        err = Queue_Error;
+    }
+    else
+    {
+        /* Pop the data off the queue one byte at a time */
+        for (size_t byte = 0; byte < pObj->dataSize; byte++)
         {
-            err = Queue_Error;
-            break;
-        }
+            pDataOut[byte] = pObj->pBuf[pObj->front];
 
-        pDataOut[byte] = pObj->pBuf[pObj->front];
-
-        /* Increment cursor around buffer */
-        pObj->front++;
-        if (pObj->front >= pObj->bufSize)
-        {
-            pObj->front = 0;
+            /* Increment cursor around buffer */
+            pObj->front++;
+            if (pObj->front >= pObj->bufSize)
+            {
+                pObj->front = 0;
+            }
         }
 
         if (Queue_IsFull(pObj))
         {
+            /* Stash front cursor */
             pObj->front = SIZE_MAX;
         }
     }
