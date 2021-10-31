@@ -40,7 +40,7 @@ Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid)
     uint8_t *pDataIn = (uint8_t *)pDataInVoid;
 
     /* Push the data into the queue one byte at a time */
-    for (size_t idx = 0; idx < pObj->dataSize; idx++)
+    for (size_t byte = 0; byte < pObj->dataSize; byte++)
     {
         if (Queue_IsFull(pObj))
         {
@@ -53,7 +53,7 @@ Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid)
             pObj->front = pObj->rear;
         }
 
-        pObj->pBuf[pObj->rear] = pDataIn[idx];
+        pObj->pBuf[pObj->rear] = pDataIn[byte];
 
         /* Increment cursor around buffer */
         pObj->rear++;
@@ -72,7 +72,7 @@ Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid)
     uint8_t *pDataOut = (uint8_t *)pDataOutVoid;
 
     /* Pop the data off the queue one byte at a time */
-    for (size_t idx = 0; idx < pObj->dataSize; idx++)
+    for (size_t byte = 0; byte < pObj->dataSize; byte++)
     {
         if (Queue_IsEmpty(pObj))
         {
@@ -80,7 +80,7 @@ Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid)
             break;
         }
 
-        pDataOut[idx] = pObj->pBuf[pObj->front];
+        pDataOut[byte] = pObj->pBuf[pObj->front];
 
         /* Increment cursor around buffer */
         pObj->front++;
