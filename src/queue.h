@@ -57,31 +57,31 @@ bool Queue_IsFull(Queue_t *pObj);
 /*******************************************************************************
  * @brief  Pushes some data type onto the queue
  *
- * @param pObj     Pointer to the queue object
- * @param pDataIn  Pointer to the data that will be pushed onto the queue
+ * @param pObj         Pointer to the queue object
+ * @param pDataInVoid  Pointer to the data that will be pushed onto the queue
  *
  * @returns Queue error flag
  ******************************************************************************/
-Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataIn);
+Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid);
 
 /*******************************************************************************
  * @brief  Pops some data type off the queue
  *
- * @param pObj      Pointer to the queue object
- * @param pDataOut  Pointer to the data that will be popped off the queue
+ * @param pObj          Pointer to the queue object
+ * @param pDataOutVoid  Pointer to the data that will be popped off the queue
  *
  * @returns Queue error flag
  ******************************************************************************/
-Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOut);
+Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid);
 
 /*******************************************************************************
  * @brief  Peek at the data on the top of the queue
  *
- * @param  pObj      Pointer to the queue object
- * @param  pDataOut  Pointer to the peeked data
+ * @param pObj          Pointer to the queue object
+ * @param pDataOutVoid  Pointer to the peeked data
  *
  * @returns Queue error flag
  ******************************************************************************/
-Queue_Error_e Queue_Peek(Queue_t *pObj, void *pDataOut);
+Queue_Error_e Queue_Peek(Queue_t *pObj, void *pDataOutVoid);
 
 #endif /* QUEUE_H_INCLUDED */
