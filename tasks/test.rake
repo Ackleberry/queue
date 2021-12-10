@@ -75,6 +75,9 @@ end
 # '.d' file. The file contains '.mf' and '.o' file tasks that are dependent on
 # various .h and .c files. This allows rake to perform incremental builds. It is
 # updated every time the object file rule is called.
-UT_MAP[:mf_hash].keys.each do |dep|
-  import dep if File.exist?(dep)
+running_tasks = Rake::application.top_level_tasks.to_s
+if running_tasks.include?("clean") || running_tasks.include?("clobber")
+  # Skip import since were about to clean up
+else
+  UT_MAP[:mf_hash].keys.each { |dep| import dep if File.exist?(dep) }
 end
