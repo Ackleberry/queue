@@ -38,11 +38,7 @@ Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid, size_t dataSize)
     Queue_Error_e err = Queue_Error_None;
     uint8_t *pDataIn = (uint8_t *)pDataInVoid;
 
-    if (Queue_IsFull(pObj))
-    {
-        err = Queue_Error;
-    }
-    else
+    if (!Queue_IsFull(pObj))
     {
         if (Queue_IsEmpty(pObj))
         {
@@ -72,6 +68,10 @@ Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid, size_t dataSize)
             }
         }
     }
+    else
+    {
+        err = Queue_Error;
+    }
 
     return err;
 }
@@ -81,11 +81,7 @@ Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid, size_t dataSize)
     Queue_Error_e err = Queue_Error_None;
     uint8_t *pDataOut = (uint8_t *)pDataOutVoid;
 
-    if (Queue_IsEmpty(pObj))
-    {
-        err = Queue_Error;
-    }
-    else
+    if (!Queue_IsEmpty(pObj))
     {
         size_t origFront = pObj->front; /* Save front incase of error */
 
@@ -115,6 +111,10 @@ Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid, size_t dataSize)
                 break;
             }
         }
+    }
+    else
+    {
+        err = Queue_Error;
     }
 
     return err;
