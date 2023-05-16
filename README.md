@@ -12,4 +12,4 @@ Features:
 Branches:
 
 - Queue v1.x.x - Only supports homogeneous data types
-- Queue v2.x.x - Only supports heterogeneous data types
+- Queue v2.x.x - Supports heterogeneous data types
