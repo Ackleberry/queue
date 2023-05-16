@@ -46,7 +46,6 @@ typedef struct _Queue_t
     size_t   rear;     /*!< Rear (write) buffer cursor */
     uint8_t *pBuf;     /*!< Pointer to the queue buffer */
     size_t   bufSize;  /*!< Size of the queue buffer */
-    size_t   dataSize; /*!< Size of the data type to be stored in the queue */
 } Queue_t;
 
 #endif /* QUEUE_T_H_INCLUDED */

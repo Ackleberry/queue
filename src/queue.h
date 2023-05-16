@@ -29,12 +29,11 @@
  *
  * @param pObj      Pointer to the queue object
  * @param pBuf      Pointer to the queue buffer
- * @param bufSize   Size of the buffer, must be an integer multiple of datasize
- * @param dataSize  Size of the data type that the queue is handling
+ * @param bufSize   Size of the buffer
  *
  * @return none
  ******************************************************************************/
-void Queue_Init(Queue_t *pObj, void *pBuf, size_t bufSize, size_t dataSize);
+void Queue_Init(Queue_t *pObj, void *pBuf, size_t bufSize);
 
 /*******************************************************************************
  * @brief  Check if the queue is empty
@@ -59,29 +58,32 @@ bool Queue_IsFull(Queue_t *pObj);
  *
  * @param pObj         Pointer to the queue object
  * @param pDataInVoid  Pointer to the data that will be pushed onto the queue
+ * @param dataSize     Size of the data that will be pushed onto the queue
  *
  * @returns Queue error flag
  ******************************************************************************/
-Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid);
+Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid, size_t dataSize);
 
 /*******************************************************************************
  * @brief  Pops some data type off the queue
  *
  * @param pObj          Pointer to the queue object
  * @param pDataOutVoid  Pointer to the data that will be popped off the queue
+ * @param dataSize      Size of the data that will be pushed onto the queue
  *
  * @returns Queue error flag
  ******************************************************************************/
-Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid);
+Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid, size_t dataSize);
 
 /*******************************************************************************
  * @brief  Peek at the data on the top of the queue
  *
  * @param pObj          Pointer to the queue object
  * @param pDataOutVoid  Pointer to the peeked data
+ * @param dataSize      Size of the data that will be pushed onto the queue
  *
  * @returns Queue error flag
  ******************************************************************************/
-Queue_Error_e Queue_Peek(Queue_t *pObj, void *pDataOutVoid);
+Queue_Error_e Queue_Peek(Queue_t *pObj, void *pDataOutVoid, size_t dataSize);
 
 #endif /* QUEUE_H_INCLUDED */

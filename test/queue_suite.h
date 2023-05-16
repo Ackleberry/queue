@@ -17,7 +17,7 @@ TEST Queue_can_report_empty(void)
     /*****************    Arrange    *****************/
     Queue_t q;
     uint8_t buf[2];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Init(&q, buf, sizeof(buf));
 
     /*****************     Act       *****************/
     bool isEmpty = Queue_IsEmpty(&q);
@@ -34,8 +34,8 @@ TEST Queue_can_report_not_empty(void)
     Queue_t q;
     uint8_t buf[2];
     uint8_t dataIn = 5;
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
-    Queue_Push(&q, &dataIn);
+    Queue_Init(&q, buf, sizeof(buf));
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
 
     /*****************     Act       *****************/
     bool isEmpty = Queue_IsEmpty(&q);
@@ -46,15 +46,15 @@ TEST Queue_can_report_not_empty(void)
     PASS();
 }
 
-TEST Queue_can_report_full(void)
+TEST Queue_can_report_full_with_homogeneous_data(void)
 {
     /*****************    Arrange    *****************/
     Queue_t q;
     uint8_t buf[2];
     uint8_t dataIn = 5;
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
-    Queue_Push(&q, &dataIn);
-    Queue_Push(&q, &dataIn);
+    Queue_Init(&q, buf, sizeof(buf));
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
 
     /*****************     Act       *****************/
     bool isFull = Queue_IsFull(&q);
@@ -65,12 +65,73 @@ TEST Queue_can_report_full(void)
     PASS();
 }
 
-TEST Queue_can_report_not_full(void)
+TEST Queue_can_report_full_with_heterogeneous_data(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    uint8_t buf[7];
+    uint32_t dataIn1 = 12345;
+    uint16_t dataIn2 = 1234;
+    uint8_t  dataIn3 = 123;
+    Queue_Init(&q, buf, sizeof(buf));
+    Queue_Push(&q, &dataIn1, sizeof(dataIn1));
+    Queue_Push(&q, &dataIn2, sizeof(dataIn2));
+    Queue_Push(&q, &dataIn3, sizeof(dataIn3));
+
+    /*****************     Act       *****************/
+    bool isFull = Queue_IsFull(&q);
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(true, isFull);
+
+    PASS();
+}
+
+TEST Queue_can_report_not_full_when_empty(void)
 {
     /*****************    Arrange    *****************/
     Queue_t q;
     uint8_t buf[2];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Init(&q, buf, sizeof(buf));
+
+    /*****************     Act       *****************/
+    bool isFull = Queue_IsFull(&q);
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(false, isFull);
+
+    PASS();
+}
+
+TEST Queue_can_report_not_full_with_homogeneous_data(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    uint8_t buf[3];
+    uint8_t dataIn = 5;
+    Queue_Init(&q, buf, sizeof(buf));
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
+
+    /*****************     Act       *****************/
+    bool isFull = Queue_IsFull(&q);
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(false, isFull);
+
+    PASS();
+}
+
+TEST Queue_can_report_not_full_with_heterogeneous_data(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    uint8_t buf[7];
+    uint32_t dataIn1 = 12345;
+    uint16_t dataIn2 = 1234;
+    Queue_Init(&q, buf, sizeof(buf));
+    Queue_Push(&q, &dataIn1, sizeof(dataIn1));
+    Queue_Push(&q, &dataIn2, sizeof(dataIn2));
 
     /*****************     Act       *****************/
     bool isFull = Queue_IsFull(&q);
@@ -86,11 +147,11 @@ TEST Queue_pop_fails_if_underflow(void)
     /*****************    Arrange    *****************/
     Queue_t q;
     uint8_t buf[2];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Init(&q, buf, sizeof(buf));
     uint8_t dataOut;
 
     /*****************     Act       *****************/
-    Queue_Error_e err = Queue_Pop(&q, &dataOut);
+    Queue_Error_e err = Queue_Pop(&q, &dataOut, sizeof(dataOut));
 
     /*****************    Assert     *****************/
     ASSERT_EQ(Queue_Error, err);
@@ -98,20 +159,66 @@ TEST Queue_pop_fails_if_underflow(void)
     PASS();
 }
 
-TEST Queue_push_fails_if_overflow(void)
+TEST Queue_push_fails_if_overflow_with_homogeneous_data(void)
 {
     /*****************    Arrange    *****************/
     Queue_t q;
     uint8_t buf[2];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Init(&q, buf, sizeof(buf));
     uint8_t dataIn = 5;
 
     /* Fill the queue up */
-    Queue_Push(&q, &dataIn);
-    Queue_Push(&q, &dataIn);
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
 
     /*****************     Act       *****************/
-    Queue_Error_e err = Queue_Push(&q, &dataIn);
+    Queue_Error_e err = Queue_Push(&q, &dataIn, sizeof(dataIn));
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error, err);
+
+    PASS();
+}
+
+TEST Queue_push_does_not_fail_with_heterogeneous_data(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    uint8_t buf[13];
+    uint64_t dataIn1 = 12345;
+    uint32_t dataIn2 = 1234;
+    uint8_t dataIn3 = 123;
+    Queue_Init(&q, buf, sizeof(buf));
+
+    /* Fill the queue up */
+    Queue_Push(&q, &dataIn1, sizeof(dataIn1));
+    Queue_Push(&q, &dataIn2, sizeof(dataIn2));
+
+    /*****************     Act       *****************/
+    Queue_Error_e err = Queue_Push(&q, &dataIn3, sizeof(dataIn3));
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error_None, err);
+
+    PASS();
+}
+
+TEST Queue_push_fails_during_partial_overflow_with_heterogeneous_data(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    uint8_t buf[13];
+    uint64_t dataIn1 = 12345;
+    uint32_t dataIn2 = 1234;
+    uint16_t dataIn3 = 123;
+    Queue_Init(&q, buf, sizeof(buf));
+
+    /* Fill the queue up */
+    Queue_Push(&q, &dataIn1, sizeof(dataIn1));
+    Queue_Push(&q, &dataIn2, sizeof(dataIn2));
+
+    /*****************     Act       *****************/
+    Queue_Error_e err = Queue_Push(&q, &dataIn3, sizeof(dataIn3));
 
     /*****************    Assert     *****************/
     ASSERT_EQ(Queue_Error, err);
@@ -124,14 +231,14 @@ TEST Queue_can_pop_1_byte_data_types(void)
     /*****************    Arrange    *****************/
     Queue_t q;
     uint8_t buf[4];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Init(&q, buf, sizeof(buf));
     uint8_t dataIn = 201;
     uint8_t dataOut;
 
-    Queue_Push(&q, &dataIn);
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
 
     /*****************     Act       *****************/
-    Queue_Error_e err = Queue_Pop(&q, &dataOut);
+    Queue_Error_e err = Queue_Pop(&q, &dataOut, sizeof(dataOut));
 
     /*****************    Assert     *****************/
     ASSERT_EQ(Queue_Error_None, err);
@@ -146,14 +253,14 @@ TEST Queue_can_pop_2_byte_data_types(void)
     /*****************    Arrange    *****************/
     Queue_t q;
     uint16_t buf[4];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Init(&q, buf, sizeof(buf));
     uint16_t dataIn = 999;
     uint16_t dataOut;
 
-    Queue_Push(&q, &dataIn);
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
 
     /*****************     Act       *****************/
-    Queue_Error_e err = Queue_Pop(&q, &dataOut);
+    Queue_Error_e err = Queue_Pop(&q, &dataOut, sizeof(dataOut));
 
     /*****************    Assert     *****************/
     ASSERT_EQ(Queue_Error_None, err);
@@ -168,14 +275,14 @@ TEST Queue_can_pop_8_byte_data_types(void)
     /*****************    Arrange    *****************/
     Queue_t q;
     uint64_t buf[4];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Init(&q, buf, sizeof(buf));
     uint64_t dataIn = 12345678;
     uint64_t dataOut;
 
-    Queue_Push(&q, &dataIn);
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
 
     /*****************     Act       *****************/
-    Queue_Error_e err = Queue_Pop(&q, &dataOut);
+    Queue_Error_e err = Queue_Pop(&q, &dataOut, sizeof(dataOut));
 
     /*****************    Assert     *****************/
     ASSERT_EQ(Queue_Error_None, err);
@@ -202,15 +309,43 @@ TEST Queue_can_pop_a_struct_data_type()
     Queue_Struct_t dataOut;
     Queue_Error_e err = (uint8_t)Queue_Error_None;
 
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
-    Queue_Push(&q, &dataIn);
+    Queue_Init(&q, buf, sizeof(buf));
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
 
     /*****************     Act       *****************/
-    err = Queue_Pop(&q, &dataOut);
+    err = Queue_Pop(&q, &dataOut, sizeof(dataOut));
 
     /*****************    Assert     *****************/
     ASSERT_EQ(Queue_Error_None, err);
     ASSERT_MEM_EQ(&dataIn, &dataOut, sizeof(Queue_Struct_t));
+    ASSERT_EQ(true, Queue_IsEmpty(&q));
+
+    PASS();
+}
+
+TEST Queue_can_pop_heterogeneous_data_types(void)
+{
+    /*****************    Arrange    *****************/
+    uint8_t err = (uint8_t)Queue_Error_None;
+    Queue_t q;
+    uint8_t buf[4];
+    Queue_Init(&q, buf, sizeof(buf));
+    uint8_t dataIn1 = 234;
+    uint8_t dataOut1;
+    uint16_t dataIn2 = 999;
+    uint16_t dataOut2;
+
+    Queue_Push(&q, &dataIn1, sizeof(dataIn1));
+    Queue_Push(&q, &dataIn2, sizeof(dataIn2));
+
+    /*****************     Act       *****************/
+    err |= Queue_Pop(&q, &dataOut1, sizeof(dataOut1));
+    err |= Queue_Pop(&q, &dataOut2, sizeof(dataOut2));
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error_None, err);
+    ASSERT_EQ(dataIn1, dataOut1);
+    ASSERT_EQ(dataIn2, dataOut2);
     ASSERT_EQ(true, Queue_IsEmpty(&q));
 
     PASS();
@@ -221,20 +356,20 @@ TEST Queue_can_peek_at_next_element_to_be_popped(void)
     /*****************    Arrange    *****************/
     Queue_t q;
     uint16_t buf[4];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Init(&q, buf, sizeof(buf));
     uint16_t dataIn[] = { 301, 244, 11, 1 };
     uint16_t peekData;
     uint16_t poppedData;
 
-    Queue_Push(&q, &dataIn[0]);
-    Queue_Push(&q, &dataIn[1]);
+    Queue_Push(&q, &dataIn[0], sizeof(dataIn[0]));
+    Queue_Push(&q, &dataIn[1], sizeof(dataIn[1]));
 
 
     /*****************     Act       *****************/
-    Queue_Error_e err = Queue_Peek(&q, &peekData);
+    Queue_Error_e err = Queue_Peek(&q, &peekData, sizeof(peekData));
 
     /*****************    Assert     *****************/
-    Queue_Pop(&q, &poppedData);
+    Queue_Pop(&q, &poppedData, sizeof(poppedData));
     ASSERT_EQ(Queue_Error_None, err);
     ASSERT_EQ(dataIn[0], peekData);
     ASSERT_EQ(peekData, poppedData);
@@ -256,20 +391,59 @@ TEST Queue_can_fill_and_empty_a_large_buffer_with_1_byte_data_types(void)
     int8_t dataOut[1000] = { 0 };
     uint8_t err = (uint8_t)Queue_Error_None;
 
-    Queue_Init(&q, buf, sizeof(buf), sizeof(dataIn[0]));
+    Queue_Init(&q, buf, sizeof(buf));
 
     /*****************     Act       *****************/
 
     /* Fill the queue up */
     for (uint16_t i = 0; i < ELEMENTS_IN(dataIn); i++)
     {
-        err |= Queue_Push(&q, &dataIn[i]);
+        err |= Queue_Push(&q, &dataIn[i], sizeof(dataIn[i]));
     }
 
     /* Empty the queue */
     for (uint16_t i = 0; i < ELEMENTS_IN(dataOut); i++)
     {
-        err |= Queue_Pop(&q, &dataOut[i]);
+        err |= Queue_Pop(&q, &dataOut[i], sizeof(dataOut[i]));
+    }
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error_None, (Queue_Error_e)err);
+    ASSERT_MEM_EQ(dataIn, dataOut, ELEMENTS_IN(dataIn));
+    ASSERT_EQ(true, Queue_IsEmpty(&q));
+
+    PASS();
+}
+
+TEST Queue_can_fill_and_empty_a_large_buffer_with_2_byte_data_types(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    int16_t buf[1000];
+    int16_t dataIn[1000] =
+    {
+        [  0] = INT8_MIN,
+        [101] = -1,
+        [501] = 1,
+        [999] = INT8_MAX,
+    };
+    int16_t dataOut[1000] = { 0 };
+    uint8_t err = (uint8_t)Queue_Error_None;
+
+    Queue_Init(&q, buf, sizeof(buf));
+
+    /*****************     Act       *****************/
+
+    /* Fill the queue up */
+    for (uint16_t i = 0; i < ELEMENTS_IN(dataIn); i++)
+    {
+        err |= Queue_Push(&q, &dataIn[i], sizeof(dataIn[i]));
+    }
+
+    /* Empty the queue */
+    for (uint16_t i = 0; i < ELEMENTS_IN(dataOut); i++)
+    {
+        err |= Queue_Pop(&q, &dataOut[i], sizeof(dataOut[i]));
     }
 
     /*****************    Assert     *****************/
@@ -295,20 +469,20 @@ TEST Queue_can_fill_and_empty_a_large_buffer_with_8_byte_data_types(void)
     int64_t dataOut[1000] = { 0 };
     uint8_t err = (uint8_t)Queue_Error_None;
 
-    Queue_Init(&q, buf, sizeof(buf), sizeof(dataIn[0]));
+    Queue_Init(&q, buf, sizeof(buf));
 
     /*****************     Act       *****************/
 
     /* Fill the queue up */
     for (uint16_t i = 0; i < ELEMENTS_IN(dataIn); i++)
     {
-        err |= Queue_Push(&q, &dataIn[i]);
+        err |= Queue_Push(&q, &dataIn[i], sizeof(dataIn[i]));
     }
 
     /* Empty the queue */
     for (uint16_t i = 0; i < ELEMENTS_IN(dataOut); i++)
     {
-        err |= Queue_Pop(&q, &dataOut[i]);
+        err |= Queue_Pop(&q, &dataOut[i], sizeof(dataOut[i]));
     }
 
     /*****************    Assert     *****************/
@@ -343,20 +517,20 @@ TEST Queue_can_fill_and_empty_a_large_buffer_with_struct_data_types(void)
     Queue_Struct_t dataOut[1000];
     uint8_t err = (uint8_t)Queue_Error_None;
 
-    Queue_Init(&q, buf, sizeof(buf), sizeof(Queue_Struct_t));
+    Queue_Init(&q, buf, sizeof(buf));
 
     /*****************     Act       *****************/
 
     /* Fill the queue up */
     for (uint16_t i = 0; i < ELEMENTS_IN(dataIn); i++)
     {
-        err |= Queue_Push(&q, &dataIn[i]);
+        err |= Queue_Push(&q, &dataIn[i], sizeof(dataIn[i]));
     }
 
     /* Empty the queue */
     for (uint16_t i = 0; i < ELEMENTS_IN(dataOut); i++)
     {
-        err |= Queue_Pop(&q, &dataOut[i]);
+        err |= Queue_Pop(&q, &dataOut[i], sizeof(dataOut[i]));
     }
 
     /*****************    Assert     *****************/
@@ -383,15 +557,15 @@ TEST Queue_can_partially_fill_and_empty_multiple_times()
     int8_t dataOut[5] = { 0 };
     uint8_t err = (uint8_t)Queue_Error_None;
 
-    Queue_Init(&q, buf, sizeof(buf), sizeof(dataIn[0]));
+    Queue_Init(&q, buf, sizeof(buf));
 
     /*****************     Act       *****************/
     for (uint16_t i = 0; i < 15; i++)
     {
-        err |= Queue_Push(&q, &dataIn[i % sizeof(buf)]);
-        err |= Queue_Push(&q, &dataIn[i % sizeof(buf)]);
-        err |= Queue_Pop(&q, &dataOut[i % sizeof(buf)]);
-        err |= Queue_Pop(&q, &dataOut[i % sizeof(buf)]);
+        err |= Queue_Push(&q, &dataIn[i % sizeof(buf)], sizeof(dataIn[i % sizeof(buf)]));
+        err |= Queue_Push(&q, &dataIn[i % sizeof(buf)], sizeof(dataIn[i % sizeof(buf)]));
+        err |= Queue_Pop(&q, &dataOut[i % sizeof(buf)], sizeof(dataIn[i % sizeof(buf)]));
+        err |= Queue_Pop(&q, &dataOut[i % sizeof(buf)], sizeof(dataIn[i % sizeof(buf)]));
 
         ASSERT_EQ(Queue_Error_None, (Queue_Error_e)err);
         ASSERT_EQ(false, Queue_IsFull(&q));
@@ -406,18 +580,26 @@ SUITE(Queue_Suite)
     /* Unit Tests */
     RUN_TEST(Queue_can_report_empty);
     RUN_TEST(Queue_can_report_not_empty);
-    RUN_TEST(Queue_can_report_full);
-    RUN_TEST(Queue_can_report_not_full);
+    RUN_TEST(Queue_can_report_full_with_homogeneous_data);
+    RUN_TEST(Queue_can_report_full_with_heterogeneous_data);
+    RUN_TEST(Queue_can_report_not_full_when_empty);
+    RUN_TEST(Queue_can_report_not_full_with_homogeneous_data);
+    RUN_TEST(Queue_can_report_not_full_with_heterogeneous_data);
     RUN_TEST(Queue_pop_fails_if_underflow);
-    RUN_TEST(Queue_push_fails_if_overflow);
+    RUN_TEST(Queue_push_fails_if_overflow_with_homogeneous_data);
+    RUN_TEST(Queue_push_does_not_fail_with_heterogeneous_data);
+    RUN_TEST(Queue_push_fails_during_partial_overflow_with_heterogeneous_data);
+
     RUN_TEST(Queue_can_pop_1_byte_data_types);
     RUN_TEST(Queue_can_pop_2_byte_data_types);
     RUN_TEST(Queue_can_pop_8_byte_data_types);
     RUN_TEST(Queue_can_pop_a_struct_data_type);
+    RUN_TEST(Queue_can_pop_heterogeneous_data_types);
     RUN_TEST(Queue_can_peek_at_next_element_to_be_popped);
 
     /* Integration Tests */
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_1_byte_data_types);
+    RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_2_byte_data_types);
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_8_byte_data_types);
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_struct_data_types);
     RUN_TEST(Queue_can_partially_fill_and_empty_multiple_times);
