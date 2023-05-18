@@ -87,7 +87,7 @@ TEST Queue_can_report_full_with_heterogeneous_data(void)
     PASS();
 }
 
-TEST Queue_can_report_not_full_when_empty(void)
+TEST Queue_reports_not_full_when_empty(void)
 {
     /*****************    Arrange    *****************/
     Queue_t q;
@@ -142,7 +142,7 @@ TEST Queue_can_report_not_full_with_heterogeneous_data(void)
     PASS();
 }
 
-TEST Queue_pop_fails_if_underflow(void)
+TEST Queue_pop_fails_if_queue_is_completely_empty(void)
 {
     /*****************    Arrange    *****************/
     Queue_t q;
@@ -159,7 +159,27 @@ TEST Queue_pop_fails_if_underflow(void)
     PASS();
 }
 
-TEST Queue_push_fails_if_overflow_with_homogeneous_data(void)
+TEST Queue_pop_fails_if_data_is_out_of_memory_bounds(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    uint8_t buf[2];
+    Queue_Init(&q, buf, sizeof(buf));
+
+    uint8_t dataIn = 5;
+    Queue_Push(&q, &dataIn, sizeof(dataIn));
+
+    /*****************     Act       *****************/
+    uint32_t dataOut;
+    Queue_Error_e err = Queue_Pop(&q, &dataOut, sizeof(dataOut));
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error, err);
+
+    PASS();
+}
+
+TEST Queue_push_fails_if_queue_is_completely_full(void)
 {
     /*****************    Arrange    *****************/
     Queue_t q;
@@ -203,7 +223,7 @@ TEST Queue_push_does_not_fail_with_heterogeneous_data(void)
     PASS();
 }
 
-TEST Queue_push_fails_during_partial_overflow_with_heterogeneous_data(void)
+TEST Queue_push_fails_if_data_is_out_of_memory_bounds(void)
 {
     /*****************    Arrange    *****************/
     Queue_t q;
@@ -541,6 +561,74 @@ TEST Queue_can_fill_and_empty_a_large_buffer_with_struct_data_types(void)
     PASS();
 }
 
+TEST Queue_can_fill_and_empty_a_large_buffer_with_mixed_data_types(void)
+{
+    typedef struct _Mixed_Data_t
+    {
+        uint8_t a;
+        uint16_t b;
+        uint32_t c;
+        uint64_t d;
+        uint32_t e;
+        uint16_t f;
+        uint8_t g;
+    } Mixed_Data_t;
+
+    /*****************    Arrange    *****************/
+    uint8_t err = (uint8_t)Queue_Error_None;
+    Queue_t q;
+    int8_t buf[22];
+    Queue_Init(&q, buf, sizeof(buf));
+
+    Mixed_Data_t dataIn =
+    {
+        .a = 0x12,
+        .b = 0x3456,
+        .c = 0x789012,
+        .d = 0x3456789,
+        .e = 0x12346,
+        .f = 0x7890,
+        .g = 0x13,
+    };
+
+    /*****************     Act       *****************/
+
+    /* Fill the queue up */
+    err |= Queue_Push(&q, &dataIn.a, sizeof(dataIn.a));
+    err |= Queue_Push(&q, &dataIn.b, sizeof(dataIn.b));
+    err |= Queue_Push(&q, &dataIn.c, sizeof(dataIn.c));
+    err |= Queue_Push(&q, &dataIn.d, sizeof(dataIn.d));
+    err |= Queue_Push(&q, &dataIn.e, sizeof(dataIn.e));
+    err |= Queue_Push(&q, &dataIn.f, sizeof(dataIn.f));
+    err |= Queue_Push(&q, &dataIn.g, sizeof(dataIn.g));
+
+    bool isFull = Queue_IsFull(&q);
+
+    /* Empty the queue */
+    Mixed_Data_t dataOut = {0};
+    err |= Queue_Pop(&q, &dataOut.a, sizeof(dataOut.a));
+    err |= Queue_Pop(&q, &dataOut.b, sizeof(dataOut.b));
+    err |= Queue_Pop(&q, &dataOut.c, sizeof(dataOut.c));
+    err |= Queue_Pop(&q, &dataOut.d, sizeof(dataOut.d));
+    err |= Queue_Pop(&q, &dataOut.e, sizeof(dataOut.e));
+    err |= Queue_Pop(&q, &dataOut.f, sizeof(dataOut.f));
+    err |= Queue_Pop(&q, &dataOut.g, sizeof(dataOut.g));
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error_None, (Queue_Error_e)err);
+    ASSERT_EQ(true, isFull);
+    ASSERT_MEM_EQ(&dataIn.a, &dataOut.a, sizeof(dataIn.a));
+    ASSERT_MEM_EQ(&dataIn.b, &dataOut.b, sizeof(dataIn.b));
+    ASSERT_MEM_EQ(&dataIn.c, &dataOut.c, sizeof(dataIn.c));
+    ASSERT_MEM_EQ(&dataIn.d, &dataOut.d, sizeof(dataIn.d));
+    ASSERT_MEM_EQ(&dataIn.e, &dataOut.e, sizeof(dataIn.e));
+    ASSERT_MEM_EQ(&dataIn.f, &dataOut.f, sizeof(dataIn.f));
+    ASSERT_MEM_EQ(&dataIn.g, &dataOut.g, sizeof(dataIn.g));
+    ASSERT_EQ(true, Queue_IsEmpty(&q));
+
+    PASS();
+}
+
 TEST Queue_can_partially_fill_and_empty_multiple_times()
 {
     /*****************    Arrange    *****************/
@@ -577,18 +665,19 @@ TEST Queue_can_partially_fill_and_empty_multiple_times()
 
 SUITE(Queue_Suite)
 {
-    /* Unit Tests */
     RUN_TEST(Queue_can_report_empty);
     RUN_TEST(Queue_can_report_not_empty);
     RUN_TEST(Queue_can_report_full_with_homogeneous_data);
     RUN_TEST(Queue_can_report_full_with_heterogeneous_data);
-    RUN_TEST(Queue_can_report_not_full_when_empty);
+    RUN_TEST(Queue_reports_not_full_when_empty);
     RUN_TEST(Queue_can_report_not_full_with_homogeneous_data);
     RUN_TEST(Queue_can_report_not_full_with_heterogeneous_data);
-    RUN_TEST(Queue_pop_fails_if_underflow);
-    RUN_TEST(Queue_push_fails_if_overflow_with_homogeneous_data);
+
+    RUN_TEST(Queue_pop_fails_if_queue_is_completely_empty);
+    RUN_TEST(Queue_pop_fails_if_data_is_out_of_memory_bounds);
+    RUN_TEST(Queue_push_fails_if_queue_is_completely_full);
     RUN_TEST(Queue_push_does_not_fail_with_heterogeneous_data);
-    RUN_TEST(Queue_push_fails_during_partial_overflow_with_heterogeneous_data);
+    RUN_TEST(Queue_push_fails_if_data_is_out_of_memory_bounds);
 
     RUN_TEST(Queue_can_pop_1_byte_data_types);
     RUN_TEST(Queue_can_pop_2_byte_data_types);
@@ -596,12 +685,11 @@ SUITE(Queue_Suite)
     RUN_TEST(Queue_can_pop_a_struct_data_type);
     RUN_TEST(Queue_can_pop_heterogeneous_data_types);
     RUN_TEST(Queue_can_peek_at_next_element_to_be_popped);
-
-    /* Integration Tests */
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_1_byte_data_types);
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_2_byte_data_types);
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_8_byte_data_types);
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_struct_data_types);
+    RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_mixed_data_types);
     RUN_TEST(Queue_can_partially_fill_and_empty_multiple_times);
 }
 
