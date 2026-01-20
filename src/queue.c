@@ -102,7 +102,7 @@ Queue_Error_e Queue_Peek(Queue_t *pObj, void *pDataOutVoid)
         return Queue_Error;
     }
 
-    /* Copy the data out but don't update object state */
+    /* Copy the data out without updating object state */
     size_t front = pObj->front;
     for (size_t byte = 0; byte < pObj->dataSize; byte++)
     {
