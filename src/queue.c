@@ -92,7 +92,7 @@ Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid)
             }
         }
 
-        if (Queue_IsFull(pObj))
+        if (pObj->front == pObj->rear)
         {
             /* Stash front cursor */
             pObj->front = SIZE_MAX;
