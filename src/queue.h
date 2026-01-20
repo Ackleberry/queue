@@ -29,12 +29,12 @@
  *
  * @param pObj      Pointer to the queue object
  * @param pBuf      Pointer to the queue buffer
- * @param bufSize   Size of the buffer, must be an integer multiple of datasize
+ * @param bufSize   Queue buffer size. Must be an integer multiple of datasize
  * @param dataSize  Size of the data type that the queue is handling
  *
- * @return none
+ * @returns Queue error flag
  ******************************************************************************/
-void Queue_Init(Queue_t *pObj, void *pBuf, size_t bufSize, size_t dataSize);
+Queue_Error_e Queue_Init(Queue_t *pObj, void *pBuf, size_t bufSize, size_t dataSize);
 
 /*******************************************************************************
  * @brief  Check if the queue is empty

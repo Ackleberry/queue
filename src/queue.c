@@ -15,13 +15,18 @@
  *                      P U B L I C    F U N C T I O N S                      *
  *============================================================================*/
 
-void Queue_Init(Queue_t *pObj, void *pBuf, size_t bufSize, size_t dataSize)
+Queue_Error_e Queue_Init(Queue_t *pObj, void *pBuf, size_t bufSize, size_t dataSize)
 {
+    if (bufSize % dataSize != 0 || bufSize == SIZE_MAX) {
+        return Queue_Error;
+    }
     pObj->bufSize = bufSize;
     pObj->front = SIZE_MAX;
     pObj->rear = 0;
     pObj->pBuf = pBuf;
     pObj->dataSize = dataSize;
+
+    return Queue_Error_None;
 }
 
 bool Queue_IsEmpty(Queue_t *pObj)
@@ -36,81 +41,77 @@ bool Queue_IsFull(Queue_t *pObj)
 
 Queue_Error_e Queue_Push(Queue_t *pObj, void *pDataInVoid)
 {
-    Queue_Error_e err = Queue_Error_None;
-    uint8_t *pDataIn = (uint8_t *)pDataInVoid;
-
     if (Queue_IsFull(pObj))
     {
-        err = Queue_Error;
+        return Queue_Error;
     }
-    else
+
+    uint8_t *pDataIn = (uint8_t *)pDataInVoid;
+
+    /* If empty, unstash front cursor */
+    if (pObj->front == SIZE_MAX)
     {
-        if (Queue_IsEmpty(pObj))
-        {
-            /* Unstash front cursor */
-            pObj->front = pObj->rear;
-        }
-
-        /* Push the data into the queue one byte at a time */
-        for (size_t byte = 0; byte < pObj->dataSize; byte++)
-        {
-            pObj->pBuf[pObj->rear] = pDataIn[byte];
-
-            /* Increment cursor around buffer */
-            pObj->rear++;
-            if (pObj->rear >= pObj->bufSize)
-            {
-                pObj->rear = 0;
-            }
-        }
+        pObj->front = pObj->rear;
     }
 
-    return err;
+    /* Push the data into the queue */
+    for (size_t byte = 0; byte < pObj->dataSize; byte++)
+    {
+        pObj->pBuf[pObj->rear++] = pDataIn[byte];
+    }
+
+    /* Increment cursor around buffer */
+    if (pObj->rear == pObj->bufSize)
+    {
+        pObj->rear = 0;
+    }
+
+    return Queue_Error_None;
 }
 
 Queue_Error_e Queue_Pop(Queue_t *pObj, void *pDataOutVoid)
 {
-    Queue_Error_e err = Queue_Error_None;
-    uint8_t *pDataOut = (uint8_t *)pDataOutVoid;
-
     if (Queue_IsEmpty(pObj))
     {
-        err = Queue_Error;
+        return Queue_Error;
     }
-    else
+
+    /* Pop the data off the queue */
+    uint8_t *pDataOut = (uint8_t *)pDataOutVoid;
+    for (size_t byte = 0; byte < pObj->dataSize; byte++)
     {
-        /* Pop the data off the queue one byte at a time */
-        for (size_t byte = 0; byte < pObj->dataSize; byte++)
-        {
-            pDataOut[byte] = pObj->pBuf[pObj->front];
-
-            /* Increment cursor around buffer */
-            pObj->front++;
-            if (pObj->front >= pObj->bufSize)
-            {
-                pObj->front = 0;
-            }
-        }
-
-        if (pObj->front == pObj->rear)
-        {
-            /* Stash front cursor */
-            pObj->front = SIZE_MAX;
-        }
+        pDataOut[byte] = pObj->pBuf[pObj->front++];
     }
 
-    return err;
+    /* Increment cursor around buffer */
+    if (pObj->front == pObj->bufSize)
+    {
+        pObj->front = 0;
+    }
+
+    /* If empty, stash front cursor */
+    if (pObj->front == pObj->rear)
+    {
+        pObj->front = SIZE_MAX;
+    }
+
+    return Queue_Error_None;
 }
 
 Queue_Error_e Queue_Peek(Queue_t *pObj, void *pDataOutVoid)
 {
-    Queue_Error_e err = Queue_Error_None;
+    if (Queue_IsEmpty(pObj))
+    {
+        return Queue_Error;
+    }
+
+    /* Copy the data out but don't update object state */
     size_t front = pObj->front;
-    size_t rear = pObj->rear;
+    uint8_t *pDataOut = (uint8_t *)pDataOutVoid;
+    for (size_t byte = 0; byte < pObj->dataSize; byte++)
+    {
+        pDataOut[byte] = pObj->pBuf[front++];
+    }
 
-    err = Queue_Pop(pObj, pDataOutVoid);
-
-    pObj->front = front;
-    pObj->rear = rear;
-    return err;
+    return Queue_Error_None;
 }

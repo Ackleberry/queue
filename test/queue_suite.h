@@ -12,17 +12,48 @@
 /* Declare a local suite. */
 SUITE(Queue_Suite);
 
+TEST Queue_init_fails_if_buffer_is_not_an_integer_multiple_of_data_size(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    uint8_t buf[6];
+    
+    /*****************     Act       *****************/
+    Queue_Error_e err = Queue_Init(&q, buf, sizeof(buf), 4);
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error, err);
+
+    PASS();
+}
+
+TEST Queue_init_fails_if_buffer_is_size_max(void)
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    uint8_t buf[2];
+    
+    /*****************     Act       *****************/
+    Queue_Error_e err = Queue_Init(&q, buf, SIZE_MAX, sizeof(buf[0]));
+
+    /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error, err);
+
+    PASS(); 
+}
+
 TEST Queue_can_report_empty(void)
 {
     /*****************    Arrange    *****************/
     Queue_t q;
     uint8_t buf[2];
-    Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
+    Queue_Error_e err = Queue_Init(&q, buf, sizeof(buf), sizeof(buf[0]));
 
     /*****************     Act       *****************/
     bool isEmpty = Queue_IsEmpty(&q);
 
     /*****************    Assert     *****************/
+    ASSERT_EQ(Queue_Error_None, err);
     ASSERT_EQ(true, isEmpty);
 
     PASS();
@@ -367,7 +398,7 @@ TEST Queue_can_fill_and_empty_a_large_buffer_with_struct_data_types(void)
     PASS();
 }
 
-TEST Queue_can_partially_fill_and_empty_multiple_times()
+TEST Queue_can_partially_fill_and_empty_1_byte_data_multiple_times()
 {
     /*****************    Arrange    *****************/
     Queue_t q;
@@ -386,12 +417,47 @@ TEST Queue_can_partially_fill_and_empty_multiple_times()
     Queue_Init(&q, buf, sizeof(buf), sizeof(dataIn[0]));
 
     /*****************     Act       *****************/
-    for (uint16_t i = 0; i < 15; i++)
+    for (uint64_t i = 0; i < 100000; i++)
     {
-        err |= Queue_Push(&q, &dataIn[i % sizeof(buf)]);
-        err |= Queue_Push(&q, &dataIn[i % sizeof(buf)]);
-        err |= Queue_Pop(&q, &dataOut[i % sizeof(buf)]);
-        err |= Queue_Pop(&q, &dataOut[i % sizeof(buf)]);
+        err |= Queue_Push(&q, &dataIn[i % ELEMENTS_IN(buf)]);
+        err |= Queue_Push(&q, &dataIn[i % ELEMENTS_IN(buf)]);
+        err |= Queue_Pop(&q, &dataOut[i % ELEMENTS_IN(buf)]);
+        err |= Queue_Pop(&q, &dataOut[i % ELEMENTS_IN(buf)]);
+
+        ASSERT_EQ(Queue_Error_None, (Queue_Error_e)err);
+        ASSERT_EQ(false, Queue_IsFull(&q));
+        ASSERT_EQ(true, Queue_IsEmpty(&q));
+    }
+
+    PASS();
+}
+
+TEST Queue_can_partially_fill_and_empty_8_byte_data_multiple_times()
+{
+    /*****************    Arrange    *****************/
+    Queue_t q;
+    int64_t buf[5];
+    int64_t dataIn[5] =
+    {
+        [0] = -7,
+        [1] = 121,
+        [2] = -121,
+        [3] = 7,
+        [4] = INT64_MAX,
+    };
+
+    int64_t dataOut[5] = { 0 };
+    uint8_t err = (uint8_t)Queue_Error_None;
+
+    Queue_Init(&q, buf, sizeof(buf), sizeof(dataIn[0]));
+
+    /*****************     Act       *****************/
+    for (uint64_t i = 0; i < 100000; i++)
+    {
+        err |= Queue_Push(&q, &dataIn[i % ELEMENTS_IN(buf)]);
+        err |= Queue_Push(&q, &dataIn[i % ELEMENTS_IN(buf)]);
+        err |= Queue_Pop(&q, &dataOut[i % ELEMENTS_IN(buf)]);
+        err |= Queue_Pop(&q, &dataOut[i % ELEMENTS_IN(buf)]);
 
         ASSERT_EQ(Queue_Error_None, (Queue_Error_e)err);
         ASSERT_EQ(false, Queue_IsFull(&q));
@@ -404,6 +470,8 @@ TEST Queue_can_partially_fill_and_empty_multiple_times()
 SUITE(Queue_Suite)
 {
     /* Unit Tests */
+    RUN_TEST(Queue_init_fails_if_buffer_is_not_an_integer_multiple_of_data_size);
+    RUN_TEST(Queue_init_fails_if_buffer_is_size_max);
     RUN_TEST(Queue_can_report_empty);
     RUN_TEST(Queue_can_report_not_empty);
     RUN_TEST(Queue_can_report_full);
@@ -420,7 +488,8 @@ SUITE(Queue_Suite)
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_1_byte_data_types);
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_8_byte_data_types);
     RUN_TEST(Queue_can_fill_and_empty_a_large_buffer_with_struct_data_types);
-    RUN_TEST(Queue_can_partially_fill_and_empty_multiple_times);
+    RUN_TEST(Queue_can_partially_fill_and_empty_1_byte_data_multiple_times);
+    RUN_TEST(Queue_can_partially_fill_and_empty_8_byte_data_multiple_times);
 }
 
 #endif /* QUEUE_SUITE_INCLUDED */
